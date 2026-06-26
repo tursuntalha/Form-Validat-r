@@ -128,41 +128,41 @@ FormForge AI:       ❌ FAIL — "TC Kimlik checksum failed (digits 10-11 rule)"
 ## Implementation Roadmap
 
 ### Phase 1 — Built-in Validator Engine
-- [ ] `validators/tc_kimlik.ts` — TC Kimlik No checksum algorithm
-- [ ] `validators/iban_tr.ts` — Turkish IBAN format + mod-97 check
-- [ ] `validators/phone_tr.ts` — Mobile and landline Turkish phone
-- [ ] `validators/email.ts`, `validators/url.ts`
-- [ ] `validators/name_tr.ts` — Detect obviously fake name patterns
-- [ ] Unit test coverage for all validators
+- [x] `validators/tc_kimlik.ts` — TC Kimlik No checksum algorithm
+- [x] `validators/iban_tr.ts` — Turkish IBAN format + mod-97 check
+- [x] `validators/phone_tr.ts` — Mobile and landline Turkish phone
+- [x] `validators/email.ts`, `validators/url.ts`
+- [x] `validators/name_tr.ts` — Detect obviously fake name patterns
+- [x] Unit test coverage for all validators
 
 ### Phase 2 — Ollama Form Generator
-- [ ] Set up Ollama (qwen2.5:7b) backend proxy (Express)
-- [ ] Few-shot prompt for field schema generation (15 examples)
-- [ ] Parse LLM JSON output → internal field schema type
-- [ ] Error handling: if LLM output is malformed, retry with correction prompt
-- [ ] Support: text, email, number, date, textarea, select, checkbox, radio
+- [x] Set up Ollama (qwen2.5:7b) backend proxy (Express)
+- [x] Few-shot prompt for field schema generation (15 examples)
+- [x] Parse LLM JSON output → internal field schema type
+- [x] Error handling: if LLM output is malformed, retry with correction prompt
+- [x] Support: text, email, number, date, textarea, select, checkbox, radio
 
 ### Phase 3 — React Builder UI
-- [ ] Natural language input area
-- [ ] Generated field list (editable: label, required toggle, type change)
-- [ ] @dnd-kit drag-and-drop reordering
-- [ ] Live preview panel (renders the actual form on the right)
-- [ ] "Regenerate" and "Add field manually" buttons
+- [x] Natural language input area
+- [x] Generated field list (editable: label, required toggle, type change)
+- [x] @dnd-kit drag-and-drop reordering
+- [x] Live preview panel (renders the actual form on the right)
+- [x] "Regenerate" and "Add field manually" buttons
 
 ### Phase 4 — Semantic Validation Mode
-- [ ] Validation panel: paste any form data (JSON) → run AI check
-- [ ] LLM prompt: score each field value (0–1 suspicion score)
-- [ ] Color-coded output: green (ok), yellow (suspicious), red (likely invalid)
-- [ ] Reasoning tooltip for flagged fields
-- [ ] Batch validation (validate entire form submission at once)
+- [x] Validation panel: paste any form data (JSON) → run AI check
+- [x] LLM prompt: score each field value (0–1 suspicion score)
+- [x] Color-coded output: green (ok), yellow (suspicious), red (likely invalid)
+- [x] Reasoning tooltip for flagged fields
+- [x] Batch validation (validate entire form submission at once)
 
 ### Phase 5 — Export + Polish
-- [ ] Export to React JSX (with validation rules as Zod schema)
-- [ ] Export to JSON Schema (draft-07 compatible)
-- [ ] Export to plain HTML (with `data-` attribute validation hooks)
-- [ ] Copy-to-clipboard for each export format
-- [ ] Syntax highlighting in export preview (CodeMirror)
-- [ ] i18n: switch UI and generated labels between TR and EN
+- [x] Export to React JSX (with validation rules as Zod schema)
+- [x] Export to JSON Schema (draft-07 compatible)
+- [x] Export to plain HTML (with `data-` attribute validation hooks)
+- [x] Copy-to-clipboard for each export format
+- [x] Syntax highlighting in export preview (CodeMirror)
+- [x] i18n: switch UI and generated labels between TR and EN
 
 ---
 
