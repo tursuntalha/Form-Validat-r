@@ -1,80 +1,114 @@
-# Form-Validat-r
+# 🔨 FormForge — AI-Powered Form Builder & Smart Validator
 
 ![Status](https://img.shields.io/badge/Status-In%20Development-yellow?style=for-the-badge)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Rollup](https://img.shields.io/badge/Rollup-EC4A3F?style=for-the-badge&logo=rollup.js&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logoColor=white)
 
-A zero-dependency JavaScript form validation library with a declarative API, custom rule engine, and real-time feedback. Drop it in, configure your rules, and let it handle the rest.
+> **"Formu tarif et, AI inşa etsin."**
 
 ---
 
-## Planned Usage
+## The Problem
 
-```js
-import { FormValidator } from 'form-validat-r';
+Building forms is repetitive. Regex validators are brittle and can't understand context. A phone number field might accept `99999999999` because it passes the pattern — but is it real? A name field might accept `Aaaaaaa Bbbbbb` — technically valid, practically nonsense.
 
-const validator = new FormValidator('#myForm', {
-  email: {
-    required: true,
-    email: true,
-    message: 'Please enter a valid email address'
-  },
-  password: {
-    required: true,
-    minLength: 8,
-    pattern: /^(?=.*[A-Z])(?=.*\d)/,
-    message: 'Password must be at least 8 characters with a number and uppercase letter'
-  },
-  age: {
-    required: true,
-    numeric: true,
-    range: [18, 120]
-  }
-});
+Traditional form builders generate boilerplate. Traditional validators check format, not meaning.
 
-validator.onSubmit((isValid, errors) => {
-  if (isValid) {
-    // submit
-  } else {
-    console.log(errors); // { email: 'Invalid email', ... }
-  }
-});
+## The Solution
 
-// Custom rule
-validator.addRule('turkishPhone', (value) => /^(\+90|0)?5\d{9}$/.test(value), {
-  message: 'Enter a valid Turkish phone number'
-});
+**FormForge** is a two-mode tool:
+
+**Mode 1 — AI Form Builder:** Describe your form in plain Turkish or English, and the AI generates the complete form structure: fields, types, labels, validation rules, required markers. Export as React JSX, JSON schema, or raw HTML.
+
+**Mode 2 — Smart Validator:** Beyond regex — uses a local LLM to semantically validate suspicious inputs. Detect fake names, implausible addresses, suspicious price entries, or contextually wrong data.
+
+---
+
+## Mode 1: AI Form Generation
+
+```
+You: "Bir kira sözleşmesi formu yap: 
+      kiracı adı, TC kimlik numarası, 
+      kira bedeli (TL), başlangıç tarihi, 
+      depozito bedeli, ev adresi"
+
+FormForge generates:
+  [
+    { field: "tenant_name",   type: "text",   label: "Kiracı Adı",         required: true,  validator: "name_tr" },
+    { field: "tc_id",         type: "text",   label: "TC Kimlik No",        required: true,  validator: "tc_kimlik" },
+    { field: "monthly_rent",  type: "number", label: "Aylık Kira (TL)",     required: true,  min: 0 },
+    { field: "start_date",    type: "date",   label: "Başlangıç Tarihi",    required: true },
+    { field: "deposit",       type: "number", label: "Depozito Bedeli (TL)",required: true,  min: 0 },
+    { field: "address",       type: "textarea",label: "Ev Adresi",          required: true,  minLength: 20 }
+  ]
+
+Export as: [React Component] [JSON Schema] [HTML]
 ```
 
 ---
 
-## Planned Features
+## Mode 2: Smart Semantic Validation
 
-- **Declarative validation** — define rules via JS config or HTML `data-` attributes
-- **Built-in validators:** `required`, `minLength`, `maxLength`, `email`, `url`, `pattern`, `numeric`, `range`, `equalTo`
-- **Custom rule API** — define and register your own validators
-- **Real-time feedback** — validate on `input` event + final check on `submit`
-- **Error rendering** — automatic or manual error message placement
-- **Customizable templates** — bring your own CSS class names and error element structure
-- **i18n support** — built-in English and Turkish, extensible to any language
-- **TypeScript definitions** — full `.d.ts` typings
+Standard validators check format. FormForge checks **meaning**:
+
+```
+Input: Name = "Aaaaa Bbbbb"
+Standard validator: ✅ PASS (it's text, proper length)
+FormForge AI:       ⚠️  WARNING — "This name pattern looks generated/fake"
+
+Input: Price = "1" (for a product listed at ~5000 TL range)
+Standard validator: ✅ PASS (it's a number > 0)
+FormForge AI:       ⚠️  WARNING — "This price is unusually low for this field context"
+
+Input: TC Kimlik = "12345678901"
+Standard validator: ✅ PASS (11 digits)
+FormForge AI:       ❌ FAIL — "TC Kimlik checksum failed (digits 10-11 rule)"
+```
 
 ---
 
-## Built-in Validators
+## Architecture
 
-| Validator | Usage | Description |
-|-----------|-------|-------------|
-| `required` | `required: true` | Field must not be empty |
-| `minLength` | `minLength: 6` | Minimum character count |
-| `maxLength` | `maxLength: 100` | Maximum character count |
-| `email` | `email: true` | Valid email format |
-| `url` | `url: true` | Valid HTTP/HTTPS URL |
-| `pattern` | `pattern: /regex/` | Custom regex match |
-| `numeric` | `numeric: true` | Must be a number |
-| `range` | `range: [min, max]` | Numeric range check |
-| `equalTo` | `equalTo: '#field'` | Must match another field (password confirm) |
+```
+┌──────────────────────────────────────────────────────┐
+│                    React UI                          │
+│    Natural Language Input | Form Preview | Export    │
+└──────────────┬───────────────────────────────────────┘
+               │ description text
+               ▼
+┌──────────────────────────────────────────────────────┐
+│           Ollama — qwen2.5:7b                        │
+│   Parse intent → generate field schema JSON          │
+│   Semantic validation → score + reasoning            │
+└──────────┬───────────────────────────────────────────┘
+           │ field schema JSON
+           ▼
+┌──────────────────────────────────────────────────────┐
+│           FormForge Engine                           │
+│   Schema → React JSX / JSON / HTML export            │
+│   Built-in validators: TC, IBAN, phone TR, email     │
+│   Drag-and-drop reorder | Preview mode               │
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
+## Features
+
+| Feature | Mode | Description |
+|---------|------|-------------|
+| 🗣️ NL Form Generator | Builder | Describe form in Turkish/English → AI builds schema |
+| 🧩 Drag & Drop | Builder | Reorder fields visually after generation |
+| 👁️ Preview Mode | Builder | See the real rendered form before exporting |
+| 📤 Export | Builder | React JSX, JSON Schema, or plain HTML |
+| 🧠 Semantic Validation | Validator | LLM detects fake/implausible input patterns |
+| ✅ TC Kimlik Validator | Validator | Full checksum algorithm (digits 10–11 rule) |
+| 🏦 IBAN Validator | Validator | TR IBAN format + checksum |
+| 📱 Turkish Phone | Validator | GSM format check (05xx, +905xx) |
+| 🌍 i18n | Both | English + Turkish built-in |
 
 ---
 
@@ -82,25 +116,68 @@ validator.addRule('turkishPhone', (value) => /^(\+90|0)?5\d{9}$/.test(value), {
 
 | Layer | Technology |
 |-------|-----------|
-| Core | Vanilla JavaScript (ES2020) |
-| Type Safety | TypeScript |
-| Bundler | Rollup (ESM + CJS + UMD builds) |
-| Testing | Jest + JSDOM |
-| Docs | JSDoc |
+| Frontend | React 18 + TypeScript + Vite |
+| Styling | Tailwind CSS + shadcn/ui |
+| AI | Ollama (qwen2.5:7b — local, private) |
+| Drag & Drop | @dnd-kit/core |
+| Validators | Custom (TC, IBAN, phone TR) + Zod |
+| Export | code-mirror (code preview) + copy-to-clipboard |
 
 ---
 
-## Roadmap
+## Implementation Roadmap
 
-| Phase | Task | Status |
-|-------|------|--------|
-| Phase 1 | Core validator class + required/minLength/maxLength | [ ] |
-| Phase 2 | email, url, pattern, numeric, range, equalTo | [ ] |
-| Phase 3 | Real-time validation (oninput + onsubmit) | [ ] |
-| Phase 4 | Custom rule registration API | [ ] |
-| Phase 5 | Error rendering (auto + manual placement) | [ ] |
-| Phase 6 | i18n system (EN + TR built-in) | [ ] |
-| Phase 7 | TypeScript definitions | [ ] |
-| Phase 8 | Jest test suite (95%+ coverage) | [ ] |
-| Phase 9 | Rollup build → ESM + CJS + UMD | [ ] |
-| Phase 10 | Publish to npm | [ ] |
+### Phase 1 — Built-in Validator Engine
+- [ ] `validators/tc_kimlik.ts` — TC Kimlik No checksum algorithm
+- [ ] `validators/iban_tr.ts` — Turkish IBAN format + mod-97 check
+- [ ] `validators/phone_tr.ts` — Mobile and landline Turkish phone
+- [ ] `validators/email.ts`, `validators/url.ts`
+- [ ] `validators/name_tr.ts` — Detect obviously fake name patterns
+- [ ] Unit test coverage for all validators
+
+### Phase 2 — Ollama Form Generator
+- [ ] Set up Ollama (qwen2.5:7b) backend proxy (Express)
+- [ ] Few-shot prompt for field schema generation (15 examples)
+- [ ] Parse LLM JSON output → internal field schema type
+- [ ] Error handling: if LLM output is malformed, retry with correction prompt
+- [ ] Support: text, email, number, date, textarea, select, checkbox, radio
+
+### Phase 3 — React Builder UI
+- [ ] Natural language input area
+- [ ] Generated field list (editable: label, required toggle, type change)
+- [ ] @dnd-kit drag-and-drop reordering
+- [ ] Live preview panel (renders the actual form on the right)
+- [ ] "Regenerate" and "Add field manually" buttons
+
+### Phase 4 — Semantic Validation Mode
+- [ ] Validation panel: paste any form data (JSON) → run AI check
+- [ ] LLM prompt: score each field value (0–1 suspicion score)
+- [ ] Color-coded output: green (ok), yellow (suspicious), red (likely invalid)
+- [ ] Reasoning tooltip for flagged fields
+- [ ] Batch validation (validate entire form submission at once)
+
+### Phase 5 — Export + Polish
+- [ ] Export to React JSX (with validation rules as Zod schema)
+- [ ] Export to JSON Schema (draft-07 compatible)
+- [ ] Export to plain HTML (with `data-` attribute validation hooks)
+- [ ] Copy-to-clipboard for each export format
+- [ ] Syntax highlighting in export preview (CodeMirror)
+- [ ] i18n: switch UI and generated labels between TR and EN
+
+---
+
+## Getting Started (once Phase 1 is complete)
+
+```bash
+# Prerequisites: Node.js 18+, Ollama
+ollama pull qwen2.5:7b
+
+git clone https://github.com/tursuntalha/Form-Validat-r.git
+cd Form-Validat-r
+npm install
+npm run dev
+```
+
+---
+
+> FormForge collapses the gap between "I need a form" and "the form is done" — from hours to seconds.
